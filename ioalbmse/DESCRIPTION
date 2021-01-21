@@ -1,0 +1,34 @@
+Package: ioalbmse
+Title: Management Strategy Evaluation for the Indian Ocean Tuna Commission
+    Albacore Tuna Stock
+Version: 0.8.2
+Date: 2018-11-22
+Authors@R: person("Iago", "Mosqueira", email = "iago.mosqueira@ec.europa.eu",
+  role = c("aut", "cre"))
+Description: Inputs and outputs of the work for the development of Management
+    Procedures for Indian Ocean albacore tuna through MSE. It includes an OM based
+    on SS3 runs, a series of MSE runs using FLR, and a shiny app for visualizing
+    both. Work carried out under the auspicies of the Working Party on Methods of
+    the Indian Ocean Tuna Commission.
+Depends:
+    R (>= 3.3.2),
+    FLCore (>= 2.5.20170101),
+    FLFishery,
+    mse,
+    ss3om
+Imports:
+    methods,
+    foreach,
+    data.table,
+    ggstance,
+    stats,
+    r4ss (>= 1.25.0),
+Additional_repositories: http://iotcwpm.github.com/R http://flr-project.org/R
+Suggests:
+    doParallel,
+    testthat,
+    knitr
+VignetteBuilder: knitr
+License: European Union Public License
+LazyData: false
+RoxygenNote: 6.1.1
