@@ -14,14 +14,14 @@ registerDoParallel(3)
 
 # SETUP runs for grid corners
 
-corners <- lapply(full, function(x) c(x[1], x[length(x)]))
+interact <- full[c("M", "lfreq")]
 
-nsam <- prod(unlist(lapply(corners, length)))
+nsam <- prod(unlist(lapply(interact, length)))
 
-gcorners <- setioalbgrid(corners, dir = "model/corners",
-  base = "data/PSLFwt/CPUE_SouthWest", name = "abt", write=FALSE)
+ginteract <- setioalbgrid(interact, dir = "model/interact",
+  base = "data/PSLFwt/CPUE_SouthWest", name = "abt", write=TRUE)
 
-save(gcorners, file="model/corners/grid.RData")
+save(ginteract, file="model/interact/grid.RData")
 
 # RUN models
 
