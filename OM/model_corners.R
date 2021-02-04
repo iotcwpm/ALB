@@ -18,67 +18,107 @@ corners <- lapply(full, function(x) c(x[1], x[length(x)]))
 
 nsam <- prod(unlist(lapply(corners, length)))
 
-gcorners <- setioalbgrid(corners, dir = "model/corners",
+grid_corners <- setioalbgrid(corners, dir = "model/corners",
   base = "data/PSLFwt/CPUE_SouthWest", name = "abt", write=FALSE)
 
-save(gcorners, file="model/corners/grid.RData")
+save(grid_corners, file="model/corners/grid.RData")
 
 # RUN models
 
-# ls | parallel -j8 --bar --progress '(cd {}; ss_3.30.15)'
-# parallel --jobs 200 --progress 'cd {} && ss3' ::: *
-
+# ls | parallel -j35 --bar --progress '(cd {}; ss_3.30.15)'
+# parallel --jobs 35 --progress 'cd {} && ss3' ::: *
 
 # LOAD results
 
-res <- loadRES(dir = "model/corners", grid = gcorners)
+load("model/corners/grid.RData")
 
-outs <- loadOUT(dir = "model/corners")
+oms_corners <- loadOMS(dir="model/corners", grid=grid_corners)
 
-flss <- loadFLS(dir = "model/corners")
+res_corners <- oms_corners$results
 
-sfls <- simplify(flss)
-mes <- metrics(sfls, Rec=rec, SSB=ssb, F=fbar)
+stk_corners <- oms_corners$stock
 
-plot(mes) + geom_worm(mes)
+stks_corners <- simplify(stk_corners)
+
+srr_corners <- oms_corners$sr
+
+save(res_corners, stk_corners, stks_corners, srr_corners,
+  file="model/corners.RData")
 
 
 # --- DIAGNOSTICS
 
-# CONVERGENCE
+load("model/corners.RData")
 
-final_gradient <- res$Convergence_Level > 1e-4
+# 1. FIND unrealistic values (SSB_Virgin > 1e7 t)
 
-res[final_gradient,]
+id1 <- res_corners$SSB_Virgin > 1e7
 
-# TODO jitter final_gradient runs
+# 2. CHECK convergence < 1e-4
 
-# --- CHECK values and drop if unrealistic
+id2 <- res_corners$Convergence_Level > 1e-4
 
-valid <- !(res$Convergence_Level > 1e-4 | res$SSB_Virgin > 1e7)
+# 3. COMPUTE retrospective Mohn's rho
 
-stks <- FLStocks(lapply(setNames(outs[valid], nm=res$iter[valid]), buildFLSss330,
-  range=c(minfbar=1, maxfbar=12)))
+# ls | parallel -j20 --bar --progress '(cd {}; cd retro; for d in ./*/ ; do (cd "$d" && ss_3.30.15 && packss33run); done)'
 
-stk <- simplify(Reduce(combine, stks))
+dirs <- list.dirs('model/corners', rec=FALSE)
 
-srrs <- FLSRs(lapply(setNames(outs[valid], nm=res$iter[valid]), buildFLSRss3))
+# lapply(dirs, prepareRetro)
 
-# --- COMPUTE rec var
+# LOAD retros TODO packss3run retro folders
 
-sigma_Rec <- rep(NA, 64)
-sigma_Rec[valid] <- unlist(lapply(stks, function(x) sqrt(var(c(log(rec(x)))))))
-sigma_Rec[valid] <- unlist(lapply(srrs, function(x) sqrt(var(c(residuals(x)), na.rm=TRUE))))
-res[, sigma_Rec:=sigma_Rec]
+retros <- lapply(setNames(dirs, nm=seq(length(dirs))), function(x) {
+  
+  rdirs <- setNames(c(x, as.list(list.dirs(file.path(x, "retro"),
+    recursive=FALSE))), nm=seq(0, 5))
+
+  rretro <- foreach(i=rdirs) %dopar% readOutputss3(i)
+
+  return(SSsummarize(rretro, verbose=FALSE))
+  }
+)
+
+save(retros, file="model/corners/retros.RData", compress="xz")
+
+# COMPUTE Mohn's rho
+
+mrhos <- lapply(retros, SSmohnsrho, startyr=2013, verbose=FALSE)
+
+# ADD to res
+res_corners[, mrho:=unlist(lapply(mrhos, '[[', 'AFSC_Hurtado_SSB'))]
+
+
+# 4. COMPUTE hcxval prediction skill
+
+library(ss3diags)
+
+mases <- rbindlist(foreach(x=retros) %dopar% {
+  ma <- rbindlist(lapply(1:4, function(y) SSmase(x, Season=y, verbose=FALSE)))
+  ma[!is.na(MASE), .(mase=mean((MAE.PR * n.eval) / (MAE.base * n.eval), na.rm=TRUE)),
+  by=Index]
+  }, idcol='iter')
+
+mases <- merge(mases, grid_corners, by="iter")
+
+ggplot(mases, aes(x=Index, y=mase)) + geom_boxplot(aes(fill=Index)) +
+  theme(legend.position="none")
+
+# --- SUBSET
+
+idx <- !id1 & !id2
+
+dres <- res_corners[!idx,]
+res <- res_corners[idx,]
+
+stk <- iter(stk_corners, idx)
+
+stks <- iter(stks_corners, idx)
+
+srr <- iter(srr_corners, idx)
+
 
 save(res, valid, stk, srrs, file = "model/corners.RData", compress = "xz")
-
-# --- CHARACTERIZE noise, refpts & trends
-
-
-# --- TEST weighting schemes
-
-# MASE
 
 # LIKELIHOOD
 
@@ -107,6 +147,74 @@ load("model/corners/outs.RData")
 aics <- rbindlist(lapply(outs, aic))
 
 # RUN hindcast on corners
+
+
+
+# --- INSPECT variability by factor & level
+
+
+# SELECT worm iters
+idx <- order(res$SSB_Virgin)
+idx <- idx[round(seq(1, length(idx), length=5))]
+
+# SSB_Virgin by factor / value
+
+((ggplot(res, aes(x=factor(M), y=SSB_Virgin, fill=factor(M))) + geom_boxplot() +
+  geom_jitter(width=0.1, alpha=0.2) + xlab("M") + ylab(expression(SSB[0])) +
+  theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(sigmaR), y=SSB_Virgin, fill=factor(sigmaR))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("sigmaR") +
+  ylab("") + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(steepness), y=SSB_Virgin, fill=factor(steepness))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("steepness") +
+  ylab("") + theme(legend.pos="none"))) /
+
+((ggplot(res, aes(x=factor(cpues), y=SSB_Virgin, fill=factor(cpues))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("cpues") +
+  ylab(expression(SSB[0])) + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(lfreq), y=SSB_Virgin, fill=factor(lfreq))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("lfreq") +
+  ylab("") + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(llq), y=SSB_Virgin, fill=factor(llq))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("llq") +
+  ylab("") + theme(legend.pos="none")))
+
+
+# SSB_endyr / SSB_MSY by factor / value
+
+((ggplot(res, aes(x=factor(M), y=SSB_endyr / SSB_MSY, fill=factor(M))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("M") +
+  ylab(expression(SSB[2017]/SSB[MSY])) + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(sigmaR), y=SSB_endyr / SSB_MSY, fill=factor(sigmaR))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("sigmaR") +
+  ylab("") + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(steepness), y=SSB_endyr / SSB_MSY, fill=factor(steepness))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("steepness") +
+  ylab("") + theme(legend.pos="none"))) /
+
+((ggplot(res, aes(x=factor(cpues), y=SSB_endyr / SSB_MSY, fill=factor(cpues))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("cpues") +
+  ylab(expression(SSB[2017]/SSB[MSY])) + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(lfreq), y=SSB_endyr / SSB_MSY, fill=factor(lfreq))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("lfreq") +
+  ylab("") + theme(legend.pos="none")) +
+
+(ggplot(res, aes(x=factor(llq), y=SSB_endyr / SSB_MSY, fill=factor(llq))) +
+  geom_boxplot() + geom_jitter(width=0.1, alpha=0.2) + xlab("llq") +
+  ylab("") + theme(legend.pos="none")))
+
+# PLOT stock w/worms 
+
+plot(iter(stks_corners, -c(3,7))) +
+  geom_worm(data=metrics(iter(stks_corners, idx)))
+
 
 
 
@@ -171,3 +279,31 @@ plot(iter(dat$SSB, c(dat$SSB[, "1950"] < 1e7)))
 
 
 # RUN diagnostics
+
+
+# LOAD kobe, COMPARE to MVLN base
+
+kobes <- lapply(list.dirs("model/corners", recursive=FALSE), readKobess3)
+
+kobe2019 <- rbindlist(lapply(kobes, function(x)
+  data.table(B.BMSY=c(x$B.BMSY[,'2019']), F.FMSY=c(x$F.FMSY[,'2019']))))
+
+kobe2019 <- cbind(kobe2019, gcorners)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(M))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(sigmaR))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(llq))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(lfreq))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(cpues))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)
+
+ggplot(kobe2019, aes(B.BMSY, F.FMSY)) + geom_point(aes(colour=factor(steepness))) +
+  geom_vline(xintercept=1) + geom_hline(yintercept=1)

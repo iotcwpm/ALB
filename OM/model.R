@@ -1,5 +1,5 @@
 # model.R - DESC
-# /model.R
+# ALBMSE/OM/model.R
 
 # Copyright Iago MOSQUEIRA (WMR), 2020
 # Author: Iago MOSQUEIRA (WMR) <iago.mosqueira@wur.nl>
@@ -16,11 +16,11 @@ registerDoParallel(3)
 # DESIGN base grid
 
 full <- list(
-  M = seq(0.20, 0.40, length = 5),
+  M = seq(0.20, 0.35, length = 4),
   sigmaR = seq(0.4, 0.8, length = 3),
   steepness = seq(0.7, 0.9, length = 3),
   cpues = c(14, 12),
-  lfreq = c(1e-3, 1e-2, 0.1, 1),
+  lfreq = c(1e-2, 0.1, 1),
   llq = c(1, 1.01)
 )
 
@@ -45,12 +45,9 @@ sourceTAF("model_corners.R")
 
 library(AlgDesign)
 
-levels.design = unlist(lapply(lapply(base, seq), length))
+levels.design = unlist(lapply(lapply(full, seq), length))
 
 f.design <- gen.factorial(levels.design)
-
-fract.design <- optFederov(data=f.design, nTrials=sum(levels.design),
-  approximate=TRUE)
 
 fract.design <- optFederov(data=f.design, nTrials=50,
   approximate=FALSE)

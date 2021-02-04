@@ -1,5 +1,5 @@
-# model_sa.R - DESC
-# ALBMSE/OM/model_sa.R
+# model_base.R - Runs and diagnostics for the base case SS3 model
+# ALBMSE/OM/model_base.R
 
 # Copyright Iago MOSQUEIRA (WMR), 2020
 # Author: Iago MOSQUEIRA (WMR) <iago.mosqueira@wur.nl>
@@ -18,44 +18,26 @@ cp("data/PSLFwt/CPUE_SouthWest/*", "model/base/")
 
 # LOAD output
 
-out <- SS_output("model/base", verbose=FALSE, hidewarn=FALSE, warn=TRUE,
-  printstats=FALSE, forecast=FALSE, covar=TRUE,
-  repfile="Report.sso.gz", compfile="CompReport.sso.gz",
-  covarfile="covar.sso.gz")
+base <- readOutputss3("model/base")
 
-outsum <- SSsummarize(list(base=out))
+res_base <- readRESss3("model/base")
+
+stk_base <- readFLSss3("model/base")
+
+# --- DIAGNOSTICS
+
+# 2. Convergence level
+
+res_base$Convergence_Level > 1e-4
 
 
 # --- RETRO
 
-start <- 1
-end <- 10
-
-# SET base dir, retro_0
-
-bdir <- "model/base"
-
-# CREATE dirs
-
+# CREATE dir
 mkdir("model/retro")
-mkdir("output/retro")
 
-# READ starter
-
-sta <- SS_readstarter(file.path("model", "base", "starter.ss_new"),
-  verbose=FALSE)
-
-# CREATE retro_ folders with updated starter.ss
-
-for(i in seq(start, end)) {
-  rpath <- paste0("model/retro/retro_", sprintf("%02d", i))
-  mkdir(rpath)
-  sta$retro_yr <- -1 * i
-  SS_writestarter(sta, dir=rpath, verbose=FALSE)
-  cp(file.path(bdir, "control.ss_new"), file.path(rpath, "abt.ctl"))
-  cp(file.path(bdir, "data.ss_new"), file.path(rpath, "abt.dat"))
-  cp(file.path(bdir, "forecast.ss"), file.path(rpath, "forecast.ss"))
-}
+# CREATE retros
+prepareRetro("model/base", rpath="model/base/retro", start=1, end=10)
 
 system("cp -rf model/base/ model/retro/retro_00")
 
@@ -65,22 +47,21 @@ system("cd model/retro; ls | parallel -j5 --progress '(cd {}; ss_3.30.15 -nox)'"
 
 # LOAD results
 
-retro <- lapply(setNames(nm = list.dirs("model/retro")[-1]),
-  readOutputss3)
+dirs <- setNames(c("model/base", list.dirs("model/base/retro",
+  recursive=FALSE)), nm=seq(0, 10))
+
+retro <- lapply(dirs, readOutputss3)
+
+retrostk <- loadFLS("model/retro")
 
 # SUMMARIZE 5 peels only
-
 retrosumm <- SSsummarize(retro[1:6])
 
 # FLStocks retro
-
 retrofls <- FLStocks(lapply(retro, buildFLSss330, range=c(minfbar=1, maxfbar=12)))
 
-# DEBUG ---
-sretfls <- lapply(retrofls, simplify)
-plot(sretfls)
-
-save(out, retro, retrosumm, file="model/base.RData", compress="xz")
+# SAVE
+save(base, retro, retrosumm, file="model/base.RData", compress="xz")
 
 
 # --- DIAGNOSTICS
@@ -93,7 +74,7 @@ convergencelevel("model/base")
 
 # - catch likelihood > 1e-5
 
-retro[[1]]$likelihoods_used["Catch", "values"] > 1e-5
+base$likelihoods_used["Catch", "values"] > 1e-5
 
 # - Mohn's rho
 
@@ -111,18 +92,44 @@ cpue_rtes <- SSplotRunstest(out, add=T, subplots="cpue", indexselect=1:4)
 sspar(mfrow=c(2, 3), plot.cex = 0.7)
 len_rtes <- SSplotRunstest(out, add=T, subplots="len")
 
-# - MASE XVAL
+# - MASE HCXVAL
+
+SShcbias(retrosumm)
+
+sspar(mfrow=c(2, 2))
+SSplotHCxval(retrosumm, Season=1)
+SSplotHCxval(retrosumm, Season=3, plot=FALSE)
+SSplotHCxval(retrosumm, Season=4)
+
+
+SSplotHCxval(retrosumm, Season=2)
+
+
+# Yearly MASE per CPUE
+
+mases <- lapply(1:4, function(x) SSmase(retrosumm, Season=x, verbose=FALSE))
+mase <- rbindlist(mases)
+mase[!is.na(MASE), .(mase=mean((MAE.PR * n.eval) / (MAE.base * n.eval), na.rm=TRUE)),
+  by=Index]
+
+
+# MASE for season 3
+
+SSmase(retrosumm, Season=3, quants="cpue", verbose=FALSE)
+
+#
+
+
+
 
 # --- STATUS
 
 sspar(labs = T)
 
 # PLOT MVLN uncertainty in Kobe
-status <- SSdeltaMVLN(out, run="MVLN")
+status <- SSdeltaMVLN(base, run="MVLN")
 
-# ADD corners
-# DEBUG Fstd_MSY
-points(res$SSB_endyr / res$SSB_MSY, res$F_endyr / res$F)
+# TODO ADD corners
 
 sspar(mfrow = c(2, 2), plot.cex = 0.8)
 SSplotEnsemble(status$kb, add = TRUE, legend = FALSE)
@@ -133,6 +140,12 @@ SSplotEnsemble(status$kb, add = TRUE, legend = FALSE)
 
 # ss_3.30.15 -mcmc 5000500 -mcsave 500 -mcseed 91438
 # ss_3.30.15 -mceval
+
+# ADnuts
+
+mcbase <- sample_nuts(model="~/home/mosqu003/Bin/jjms", path="model/base_mcmc",
+  iter=2000, warmup=iter / 4, chains=3, cores=chains, admb_args="",
+  control=list(metric='mle', max_treedepth=12, refresh=1))
 
 # --- ss3om TESTS
 

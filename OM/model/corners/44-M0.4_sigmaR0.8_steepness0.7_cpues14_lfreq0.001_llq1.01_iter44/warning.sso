@@ -1,7 +1,7 @@
 #V3.30.15.00-safe;_2020_03_26;_Stock_Synthesis_by_Richard_Methot_(NOAA)_using_ADMB_12.0
 #Stock Synthesis (SS) is a work of the U.S. Government and is not subject to copyright protection in the United States.
 #Foreign copyrights may apply. See copyright.txt for more information.
-Wed Sep 30 21:28:49 2020
+Tue Jan 26 19:41:48 2021
 
 1 1warn in first call:  Observation exists, but nil selected fish for year, seas, fleet 2011 1 7
 1 1warn in first call:  Observation exists, but nil selected fish for year, seas, fleet 2011 2 7
@@ -34,5 +34,5 @@ Wed Sep 30 21:28:49 2020
  Main recdev biasadj is >2 times ratio of rmse to sigmaR
  Main recdev biasadj is >2 times ratio of rmse to sigmaR
 Reminder: Number of lamdas !=0.0 and !=1.0:  5
-Number_of_active_parameters_on_or_near_bounds: 1
+Number_of_active_parameters_on_or_near_bounds: 2
  N warnings: 32
