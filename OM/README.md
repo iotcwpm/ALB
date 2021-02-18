@@ -7,20 +7,21 @@ tags:
 OM
 ├── bootstrap
 ├── data
-│   ├── **data.R**: LOAD base case SS3 runs
-│   └── **data.RData**: runs(FLSs), indices(FLIs), srr(FLSR), rps(FLPar),
-│         out(SS_output)
+│   ├── data.R: LOAD base case SS3 runs
+│   └── data.RData: runs(`FLSs`), indices(`FLIs`), srr(`FLSR`), rps(`FLPar`),
+│         out(`SS_output`)
 ├── model
-│   ├── **model_base.R**:
-│   │   └── **base.RData**:
-│   ├── **model_corners.R**:
-│   ├── **model_interact.R**:
-│   ├── **model_maineffects.R**:
-│   └── **model_om.R**:
+│   ├── *model_base.R*:
+│   │   └── base.RData:
+│   ├── *model_corners.R*: full (df)
+│   │   └── model/corners/corners.RData: res, stk, stks, srr
+│   ├── *model_interact.R*:
+│   ├── *model_maineffects.R*:
+│   └── *model_om.R*:
 ├── output
-│   └── **output.R**:
+│   └── *output.R*:
 └── report
-    └── **report.R**:
+    └── *report.R*:
 
 # data.R
 
@@ -38,7 +39,7 @@ OM
   - Retrospective
   - Prediction skill MASE
   - Runs test
-- **OUTPUT**: base, retro, retrosumm (model/base.RData)
+- OUTPUT: base, retro, retrosumm (model/base.RData)
 
 ## model_maineffects.R
 

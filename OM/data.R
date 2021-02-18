@@ -15,11 +15,17 @@
 
 library(icesTAF)
 library(ss3om)
+library(ss3diags)
 
 # COPY bootstrap/data to data
 
 mkdir("data")
 cp("bootstrap/data/*", "data")
+
+# LOAD base case output
+
+out <- lapply(list.dirs(file.path("data", c("PSLFwt", "LLselectFix")),
+  rec=FALSE), readOutputss3)
 
 # LOAD base case runs
 

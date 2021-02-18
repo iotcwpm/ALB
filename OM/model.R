@@ -8,10 +8,13 @@
 
 
 library(icesTAF)
-library(ss3om)
+library(ioalbmse)
 
 library(doParallel)
 registerDoParallel(3)
+
+# model_base
+
 
 # DESIGN base grid
 
@@ -26,19 +29,11 @@ full <- list(
 
 nsam <- prod(unlist(lapply(full, length)))
 
-# model_base
-
 
 # model_corners
 
-sourceTAF("model_corners.R")
-
 
 # ALTERNATIVE OMs
-
-# cpues = 1
-# llsel
-
 
 
 # TEST partial factorial design

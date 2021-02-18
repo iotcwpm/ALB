@@ -8,6 +8,7 @@
 
 library(icesTAF)
 library(ggplotFL)
+library(ss3diags)
 
 library(knitr)
 
@@ -82,7 +83,13 @@ dev.off()
 
 mkdir("output/base")
 
-load("data/base.RData")
+load("model/base.RData")
+
+# stock(s)
+
+ggsave(file="output/base/stock.png",
+plot(simplify(base$stock))
+)
 
 # retro
 
@@ -149,8 +156,6 @@ ggplot(kb[year == 1952,], aes(x=SSB, y=..density..)) +
 )
 # }}}
 
-# --- model
-
 # --- model_corners {{{
 
 mkdir("output/corners")
@@ -160,7 +165,7 @@ load("model/corners.RData")
 # HISTOGRAM SSB0 selected corner runs
 
 ggsave(file = "output/corners/ssb0_distr.png",
-ggplot(res[valid,], aes(x=SSB_Virgin, y=..density..)) +
+ggplot(res, aes(x=SSB_Virgin, y=..density..)) +
   geom_histogram(fill="grey90", color="black", binwidth=12000) +
   geom_density() + ylab("") + xlab("SSB0") +
   theme(axis.ticks.y=element_blank(),
@@ -245,7 +250,3 @@ ggplot(res[col != "base"], aes(x=factor(iter), y=SSB_endyr/SSB_MSY)) +
 )
 
 # }}}
-
-# mcmc
-
-mcpars <- fread("model/base_mcmc/posteriors.sso")

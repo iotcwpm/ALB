@@ -1,5 +1,5 @@
 ---
-title: "Update of the Indian Ocean albacore Operating Model."
+title: "Update of the Indian Ocean Albacore Operating Model."
 author: Iago MOSQUEIRA (WMR) ^[Wageningen Marine Research. Haringkade 1, Postbus 68, 1976CP, IJmuiden, The Netherlands, <iago.mosqueira@wur.nl>]
 date: "11th Session IOTC Working Party on Methods.\\ 14-15 October 2020"
 documentclass: article
@@ -57,7 +57,7 @@ The previous operating model grid for albacore included alternative values for s
 
 | Factor                            | Levels (n) | prod n | Values                   |
 |-----------------------------------|------------|--------|--------------------------|
-| Natural mortality (M)             | 5          | 5      | 0202, 0303, 0404, 0403, 0402 |
+| Natural mortality (M)             | 5          | 5      | 0.2, 0.3, 0.4, 0.4-0.3, 0.4-0.2 ^[First figure refers to juveniles, second one to adults] |
 | Steepness of the stock-recruitment relationship | 3     | 15     | 0.7, 0.8, 0.9   |
 | Variability of recruitment (sigmaR)             | 2          | 30     | 0.4, 0.6   |
 | Effective Sampling Size of the length composition data (ESS) | 3 | 90 | 20, 50, 100 |
@@ -241,6 +241,51 @@ The need and format of a weighting scheme to apply when model runs from grid are
 # Acknowledgements
 
 \textcopyright FAO 2020. This work is being funded by the Indian Ocean Tuna Commission - Food and Agriculture Organization of the United Nations (IOTC-FAO). The views expressed in this document are those of the author(s) and do not necessarily reflect the views or policies of FAO or IOTC.
+
+# Annex A - Modifications to SS control and data files
+
+The following sections show how the manipulation of the original Stock Synthesis (3.30) input files has been carried out. In the code below `value` refers to a vector of length one or larger, `ctl` to the SS control file, and `dat` to the SS data file. Files are loaded and recreated using the corresponding functions in the *r4ss* package.
+
+## Natural mortality (M)
+
+```{r, eval=FALSE, echo=TRUE}
+ctl$MG_parms[c("NatM_p_1_Fem_GP_1", "NatM_p_1_Mal_GP_1"), "INIT"] <- value
+```
+
+## Standard deviation of recruitment deviances (sigmaR)
+
+```{r, eval=FALSE, echo=TRUE}
+ctl$SR_parms["SR_sigmaR", "INIT"] <- value
+```
+
+## Steepness of the Beverton-Holt stock-recruits relationship.
+
+```{r, eval=FALSE, echo=TRUE}
+ctl$SR_parms["SR_BH_steep", "INIT"] <- value
+```
+
+## 
+
+```{r, eval=FALSE, echo=TRUE}
+```
+
+## 
+
+```{r, eval=FALSE, echo=TRUE}
+```
+
+## 
+
+```{r, eval=FALSE, echo=TRUE}
+```
+
+## 
+
+```{r, eval=FALSE, echo=TRUE}
+```
+
+
+
 
 # References
 

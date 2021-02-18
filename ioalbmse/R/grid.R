@@ -97,11 +97,11 @@ setioalbgrid <- function(sce, dir=paste0('grid_', format(Sys.time(), "%Y%m%d")),
         value = grid[row,]$lfreq,
         sizefreq_method =  1)
       rownames(extla) <- c(
-        "length_F7_PS1_sizefreq_method_1_Phz1",
         "length_F1_LL1_sizefreq_method_1_Phz1",
         "length_F2_LL2_sizefreq_method_1_Phz1",
         "length_F3_LL3_sizefreq_method_1_Phz1",
-        "length_F4_LL4_sizefreq_method_1_Phz1")
+        "length_F4_LL4_sizefreq_method_1_Phz1",
+        "length_F7_PS1_sizefreq_method_1_Phz1")
       ctl$lambdas <- rbind(ctl$lambdas, extla)
 
       ctl$N_lambdas  <-  dim(ctl$lambdas)[1]
