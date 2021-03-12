@@ -1,2 +1,8 @@
 ioalbmse_*.tar.gz
-OM/model/corners/
+OM/model/corners/*
+OM/model/partial/*
+OM/model/maineffects/*
+*.tar.bz2
+*.tar.xz
+*.RData
+
