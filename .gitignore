@@ -4,5 +4,6 @@ OM/model/partial/*
 OM/model/maineffects/*
 *.tar.bz2
 *.tar.xz
-*.RData
+OM/model/corners.RData
+OM/model/maineffects.RData
 
