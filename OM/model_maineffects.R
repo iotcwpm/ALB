@@ -54,6 +54,13 @@ maineffects <- loadOMS(dir="model/maineffects", grid=grid, combine=FALSE)
 save(maineffects, file="model/maineffects/load.RData", compress="xz")
 
 
+ggplot(res, aes(x=factor(M), y=ssb1988)) + geom_point() +
+  facet_grid(sigmaR + steepness ~ cpues + lfreq + llq,
+    labeller = labeller(.cols=label_both, .rows = label_both))
+
+
+
+
 # PLOT compare SSB corners & maineffects
 dat <- rbindlist(list(main=as.data.frame(FLQuants(lapply(maineffects$output, extractSSB))),
   corners=as.data.frame(FLQuants(lapply(corners$output[-c(3, 7)], extractSSB)))), idcol="set")

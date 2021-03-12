@@ -34,7 +34,7 @@ setioalbgrid <- function(sce, dir=paste0('grid_', format(Sys.time(), "%Y%m%d")),
 
   # EXPAND grid from sce if list
   if(is(sce, "data.frame"))
-    grid <- sce
+    grid <- nameGrid(sce, from=from)
   else
   	grid <- nameGrid(expand.grid(sce, stringsAsFactors=FALSE), from=from)
 
@@ -134,8 +134,8 @@ setioalbgrid <- function(sce, dir=paste0('grid_', format(Sys.time(), "%Y%m%d")),
     }
 
     # TODO RELAX bounds
-
-		# CREATE dir
+		
+    # CREATE dir
     dirname <- file.path(dir, grid[row, "id"])
 		dir.create(dirname)
 

@@ -1,0 +1,18 @@
+\frametitle{Outline}
+\protect\hypertarget{outline}{}
+
+\begin{itemize}
+\tightlist
+\item
+  3rd iteration of albacore OM.
+\item
+  Based on WPTmT 2019 SS3 model.
+\item
+  Existing FLR platform (\texttt{ss3om} + \texttt{ioalbmse} +
+  \texttt{mse}) for SS 3.30.16.
+\item
+  Contract WMR - IOTC/FAO August 2020 - December 2021.
+\item
+  \texttt{https://github.com/iotcwpm/alb} (to be updated)
+\end{itemize}
+

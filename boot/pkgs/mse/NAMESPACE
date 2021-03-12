@@ -1,0 +1,99 @@
+import("methods")
+import("data.table")
+import("FLCore")
+import("ggplotFL")
+import("foreach")
+import("FLasher")
+
+importFrom("FLBRP",
+  "refpts",
+  "brp",
+  "FLBRP")
+importFrom("utils",
+  "setTxtProgressBar")
+importFrom("stats",
+  "coef",
+  "coefficients",
+  "lm",
+  "na.exclude",
+  "setNames",
+  "rf")
+
+export(
+  "catchSSB.hcr",
+  "cpue.hcr",
+  "FLiem",
+  "effort.is",
+  "expandGrid",
+  "fixedF.hcr",
+  "fwd.om",
+  "getCtrl",
+  "goFish",
+  "gridList",
+  "hyperstability.fb",
+  "ices.hcr",
+  "indicator.hcr",
+  "indicator.phcr",
+  "indicator.is",
+  "mlc.est",
+  "movingF.hcr",
+  "movingF.phcr",
+  "mp",
+  "mpCtrl",
+  "mpDispatch",
+  "mpa.tm",
+  "mseCtrl",
+  "noise.iem",
+  "perfect.oem",
+  "perfect.sa",
+  "sampling.oem",
+  "tac.is",
+  "tunebisect")
+
+exportClasses(
+  "FLiem",
+  "FLmse",
+  "FLoem",
+  "FLom",
+  "mpCtrl",
+  "mseCtrl")
+
+exportMethods(
+  "args",
+  "args<-",
+  "control",
+  "deviances",
+  "deviances<-",
+  "est",
+  "est<-",
+  "exists",
+  "fleetBehaviour",
+  "fleetBehaviour<-",
+  "FLmse",
+  "FLoem",
+  "FLom",
+  "fwd",
+  "hcr",
+  "hcr<-",
+  "isys",
+  "isys<-",
+  "iter",
+  "mcN",
+  "method",
+  "method<-",
+  "metrics",
+  "observations",
+  "observations<-",
+  "oem",
+  "oem<-",
+  "performance",
+  "phcr",
+  "phcr<-",
+  "projection",
+  "projection<-",
+  "sr<-",
+  "tm",
+  "tm<-",
+  "tracking",
+  "tracking<-")
+  

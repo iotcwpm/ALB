@@ -7,11 +7,11 @@
 # Distributed under the terms of the EUPL-1.2
 
 
-library(icesTAF)
 library(ss3om)
 library(ss3diags)
 
-mkdir("model/base")
+dir.create("model/base/run")
+
 
 # --- RUN models
 
@@ -19,19 +19,19 @@ mkdir("model/base")
 
 # M=0.30, sigmaR=0.6, steepness=0.8, cpues=14, lfreq=1, llq=1
 
-cp("data/PSLFwt/CPUE_SouthWest/*", "model/base/")
+cp("alb/PSLFwt/CPUE_SouthWest/*", "base/run/")
 
 # RETRO base case
 
-mkdir("model/base/retro")
+dir.create("base/run/retro")
 
 # CREATE retro folders
 
-prepareRetro("model/base", rpath="model/base/retro", start=1, end=10)
+prepareRetro("base/run", rpath="base/retro", start=1, end=10)
 
 # RUN retro
 
-system("cd model/retro; ls | parallel -j5 --progress '(cd {}; ss_3.30.15 -nox)'")
+system("cd base/retro; ls | parallel -j5 --progress '(cd {}; ss_3.30.15 -nox)'")
 
 
 # --- LOAD output
@@ -40,75 +40,85 @@ base <- readOMSss3("model/base", range=c(minfbar=1, maxfbar=12))
 
 # LOAD retro
 
-dirs <- setNames(c("model/base", list.dirs("model/base/retro",
-  recursive=FALSE)), nm=seq(0, 10))
+dirs <- setnames(c("model/base", list.dirs("model/base/retro", recursive=false)),
+  nm=seq(0, 10))
+
+retro <- lapply(dirs, readoutputss3)
+
+# summarize 5 + base peels only
+retrosumm <- sssummarize(retro[1:6])
+
+# SAVE
+save(base, retrosumm, file="model/base.RData", compress="xz")
+
+# --- CHECK SRR
+
+out <- base$out
+stk <- simplify(base$stock)
+srr <- base$sr
+rps <- base$refpts
+
+
+# Does SSB match? YES
+
+extractSSB(out)
+ssb(stk) / 2
+
+# Compare predictions and observations
+
+ggplot(FLQuants(pred=predict(srr, ssb=ssb(fut0)), obs=rec(fut0)),
+  aes(x=year, y=data, group=qname)) + geom_point(aes(colour=qname)) +
+  ylim(c(0,NA))
+
+fut <- stf(stk, end=2040)
+
+fut0 <- fwd(fut, sr=srr,
+  control=fwdControl(year=2018:2040, quant="fbar", value=rps$FMSY))
+
+rec(fut0[-1,])[, ac(2016:2018)]
+
+plot(fut0) + geom_vline(xintercept=2017)
+
+
+# ---- NoLF
+
+# retro
+
+prepareRetro("model/noLF", years=5)
+
+dirs <- setNames(c("model/noLF", list.dirs("model/noLF/retro", recursive=FALSE)),
+  nm=seq(0, 5))
 
 retro <- lapply(dirs, readOutputss3)
 
-# SUMMARIZE 5 peels only
-retrosumm <- SSsummarize(retro[1:6])
-
-# FLStocks retro
-retrostocks <- FLStocks(lapply(retro, buildFLSss330, range=c(minfbar=1, maxfbar=12)))
-
-# SAVE
-save(base, retrosumm, retrostocks, file="model/base.RData", compress="xz")
+# summarize 5 + base peels only
+nolfret <- SSsummarize(retro)
 
 
-# --- DIAGNOSTICS
-
-load("model/base.RData")
-
-results <- base$results
-
-# 2. Convergence level
-
-results$Convergence_Level > 1e-4
-
-# - catch likelihood > 1e-5
-
-results$Catch > 1e-5
-
-# - Mohn's rho: output.R
-
-# - runs test: output.R
-
-# - MASE HCXVAL
-
-ssmase <- rbindlist(lapply(1:4, function(y) SSmase(retrosumm, Season=y, verbose=FALSE)))
-mase <- ssmase[!is.na(MASE), .(mase=mean((MAE.PR * n.eval) / (MAE.base * n.eval),
-  na.rm=TRUE)), by=.(Index, Season)]
-
-hcbias <- SShcbias(retrosumm)
-
-SSplotHCxval(retrosumm, Season=1)
-SSplotHCxval(retrosumm, Season=2)
-SSplotHCxval(retrosumm, Season=3)
-SSplotHCxval(retrosumm, Season=4)
 
 
-# --- STATUS
 
-out <- SS_output("model/base", repfile = "Report.sso.gz",
-  compfile = "CompReport.sso.gz", covarfile = "covar.sso.gz")
+# LOAD
 
-# PLOT MVLN uncertainty in Kobe
-status <- SSdeltaMVLN(out, run="MVLN")
+nolf <- readFLSss3('model/noLF')
+molfout <- readOutputss3('model/noLF')
+nolfres <- readRESss3('model/noLF')
+nolfrps <- readFLRPss3('model/noLF')
 
-# TODO ADD corners
+# COMPARE to base
 
-sspar(mfrow = c(3, 2), plot.cex = 0.8)
-SSplotEnsemble(status$kb, add = TRUE, legend = FALSE)
+plot(FLStocks(SA=simplify(base$stock), NoLF=simplify(nolf)))
 
-# - ASPM (?)
+# TODO metrics(FLStocks)
+metrics(FLStocks(SA=simplify(base$stock), NoLF=simplify(nolf)))
 
-# McMC
 
-# ss_3.30.15 -mcmc 5000500 -mcsave 500 -mcseed 91438
-# ss_3.30.15 -mceval
+plot(simplify(base$stock), metrics=list(SSB=ssb, F=fbar)) 
++
+  geom_flpar(data=FLPars(SSB=base$refpts$SBMSY, F=base$refpts$FMSY),
+    x=ISOdate(1955,1,1))
 
-# ADnuts
 
-mcbase <- sample_nuts(model="~/home/mosqu003/Bin/jjms", path="model/base_mcmc",
-  iter=2000, warmup=iter / 4, chains=3, cores=chains, admb_args="",
-  control=list(metric='mle', max_treedepth=12, refresh=1))
+
+
+
