@@ -20,9 +20,6 @@ source("utilities.R")
 #registerDoFuture()
 #plan(multicore, workers=25)
 
-library(doParallel)
-registerDoParallel(25)
-
 # DATA
 load("data/om.Rdata")
 
