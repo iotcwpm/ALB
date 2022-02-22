@@ -39,6 +39,9 @@ mets <- list(Rec=function(x) unitSums(rec(x)), SB=function(x) unitSums(ssb(x)),
 
 # RELATIVE metrics
 
-relmets <- list(SBMSY=function(x) unitSums(ssb(x)) %/% refpts(om)$SBMSY,
-  SB0=function(x) unitSums(ssb(x)) %/% refpts(om)$SB0,
-  FMSY=function(x) unitMeans(fbar(x)) %/% refpts(om)$FMSY) 
+relmets <- list(
+  BMSY=function(x) unitSums(stock(x)) %/% refpts(x)$BMSY,
+  B0=function(x) unitSums(stock(x)) %/% refpts(x)$B0,
+  FMSY=function(x) unitMeans(fbar(x)) %/% refpts(x)$FMSY,
+  SB0=function(x) unitSums(ssb(x)) %/% unitSums(ssb(x)[,1])
+) 

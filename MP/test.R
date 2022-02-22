@@ -22,3 +22,7 @@ plot(unitSums(catch(tune_jabSA_stHCR))) + facet_wrap(~iter) + ylim(c(0,NA))
 plot(unitMeans(fbar(tune_jabSA_stHCR))) + facet_wrap(~iter) + ylim(c(0,NA))
 plot(unitSums(vb(stock(tune_jabSA_stHCR)))) + facet_wrap(~iter) + ylim(c(0,NA))
 plot(unitSums(catch(tune_jabSA_stHCR)) / unitSums(vb(stock(tune_jabSA_stHCR)))) + facet_wrap(~iter) + ylim(c(0,NA))
+
+
+# LOOK into iters where fwd returns NA
+# - 

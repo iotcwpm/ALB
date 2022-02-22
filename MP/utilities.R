@@ -24,8 +24,8 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)),
 
   B <- stock(stk) %=% an(NA)
   
-  refpts <- FLPar(NA, dimnames=list(params=c("FMSY", "BMSY", "MSY", "K"),
-    iter=dimnames(stk)$iter), units=c("t", "f", "t", "t"))
+  refpts <- FLPar(NA, dimnames=list(params=c("FMSY", "BMSY", "MSY", "K", "B0"),
+    iter=dimnames(stk)$iter), units=c("t", "f", "t", "t", "t"))
 
   conv <- rep(0, args$it)
 
@@ -53,14 +53,14 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)),
       # error, RETURN 0 output
       error = function(e) return(list(
         timeseries=array(9, dim=c(dim(ca)[1],1,1)),
-        refpts=data.frame(k=9, bmsy=1, fmsy=0.1, msy=1)))
+        refpts=data.frame(k=9, bmsy=1, fmsy=0.1, msy=1, b0=9)))
     )
 
     # B
     iter(B, i)[] <- fit$timeseries[,1,1]
 
     # refpts
-    iter(refpts, i) <- unlist(fit$refpts[1, c('fmsy', 'bmsy', 'msy', 'k')])
+    iter(refpts, i) <- unlist(fit$refpts[1, c('fmsy', 'bmsy', 'msy', 'k', 'k')])
 
     # tracking
     if(length(fit) > 2) {
@@ -70,12 +70,30 @@ jabba.sa <- function(stk, idx, args, tracking, idx.se=rep(0.2, length(idx)),
   }
 
   # STORE outputs: biomass in @stock
-
   stock(stk) <- B
-  attr(stk, "refpts") <- refpts
 
+  # refpts as attribute
+  attr(stk, "refpts") <- refpts
+  
+  # EMPTY stock.n to avoid calls to ssb()
+  stock.n(stk) <- as.numeric(NA)
+
+  # TRACK convergence
   track(tracking, "conv.est", ac(args$ay)) <- conv
   
   list(stk = stk, tracking = tracking)
 }
+# }}}
+
+# refpts(FLStock) {{{
+
+setMethod("refpts", signature(object="FLStock"),
+  function(object) {
+
+    if(is.null(attr(object, "refpts")))
+      return(FLPar())
+    else
+      return(attr(object, "refpts"))
+  }
+)
 # }}}
