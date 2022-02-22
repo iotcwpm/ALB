@@ -1,0 +1,132 @@
+
+# Grid corners
+
+- 64 (2^6) model runs:
+  - 3 with $B_0 > 1e7$.
+  - 1 with final gradient > 1e-4.
+  - 8 with MASE(LLCPUE3S01) > 1
+- 53 model runs accepted
+
+# Regression tree
+
+```{r}
+include_graphics("../corners/regtrees.png")
+```
+
+# MASE by LLCPUE and season
+
+\centering![](../corners/mases.png){ width=65% }
+
+# Weighting of OM runs
+
+- Diebold-Mariano test (Harvey, Leybourne and Newbold, 1997).
+- Compares naive and model 1-step-ahead predictions of CPUE.
+  - prediction skill model > naive.
+- DM p-value used as weight.
+
+\centering![](../output/om_weights.png){ width=45% }
+
+# OM 500 resamples
+
+\centering![](../output/om_worm.png){ width=55% }
+
+# Corners OM vs. base case SA
+
+```{r}
+include_graphics("../corners/om_base.png")
+```
+
+# OM factors variability vs. SA
+
+```{r, out.width="99%"}
+include_graphics("../output/factors_base_sbmsy.png")
+include_graphics("../output/factors_base_status.png")
+```
+
+# Projection F=FMSY
+
+```{r}
+include_graphics("../output/fut_fmsy.png")
+```
+
+# OM difference by CPUE
+
+```{r}
+include_graphics("../output/om_cpues.png")
+```
+
+# Hindcast MPs on 2016 grid (2000-2014)
+
+- Schaefer, Fox & Pella ($B_{MSY}/K = 0.20$)
+- Ftarget = $F_{MSY}$ multiplier
+
+```{r, out.height="65%"}
+include_graphics("../figures/MPs.png")
+```
+
+# Production function (OM & MPs) by M, ESS and h
+
+```{r, out.width="65%"}
+include_graphics("../figures/prodfun_OM-MPs.png")
+```
+
+# Open questions on OM
+
+- Maintain the two CPUES given only one will run MP?
+  - Run MPs on LLCPU3 (SW) start of year (S04-S01).
+  - Separate as 2 OMs?
+- Likelihood lambda enough contrast CPUE ~ LF?
+- Do corners suffice to cover uncertainty space?
+- Weighting based on prediction skill.
+- Recruitment deviates to follow recent trends?
+- Base case on extreme of OM: status.
+
+# Next steps
+
+- Biomass dynamics MP implemented.
+  1. TMB Jabba-like (observation error, fixed process error).
+  2. Jabba slim down, 30s running time.
+- Capture the spatial component in CPUE in one area OM?
+
+
+# Simulations workplan
+
+- Tune MPs for
+  1. P(Kobe == green 2030-2034) = 50%
+  2. P(Kobe == green 2030-2034) = 60%
+  3. P(Kobe == green 2030-2034) = 70%
+- Robustness tests
+  - Continuing recruitment decline
+  - LLCPUE overcompensation bias 
+  - 10% overcatch, reported
+  - 10% overcatch, not reported
+
+# Full grid vs. corners in 2016 OM
+\centering![](../data/corners_2016-full.png){ width=85% }
+
+# Full grid vs. corners in 2016 OM
+
+\centering![](../figures/mses_2016.png){ width=45% } ![](../figures/mses_2016-corners.png){ width=45% }
+
+# Central Composite Design
+\centering![](../figures/ccd.png){ width=85% }
+
+- 2 ^ 6 + 1 + 2 * 6 = 77
+- Compares well to 3 ^ 6 ([Sanchez, 2005]( https://doi.org/10.1145/1113316.1113320))
+
+# Corners + main effects
+
+\centering![](../om/fuller-om_base.png){ width=85% }
+
+# Corners by CPUE vs. bases
+
+\centering![](../om/oms_bases.png){ width=85% }
+
+# Recruitment residuals in projections
+
+\centering![](../om/fut_recs.png){ width=55% } 
+
+# Recruitment residuals in projections
+
+\centering![](../om/pred-recs.png){ width=55% }
+

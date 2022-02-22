@@ -1,0 +1,107 @@
+---
+title: "Indian Ocean Albacore Tuna Management Procedures Evaluation: Status Report ^[Work conducted under a Letter of Agreement between IOTC/FAO and Wageningen University and Research.]"
+subtitle: IOTC-2021-TCMP04-11
+author: Iago MOSQUEIRA (WMR) ^[Wageningen Marine Research. Haringkade 1, Postbus 68, 1976CP, IJmuiden, The Netherlands, <iago.mosqueira@wur.nl>]
+date: "4th Session of the Indian Ocean Tuna Commission Technical Committee on Management Procedures. 4-5 June 2021"
+documentclass: article
+header-includes: 
+  - \usepackage{float}
+  - \usepackage{subfig}
+  - \usepackage{pdflscape}
+  - \usepackage[top=90pt,bottom=70pt,left=68pt,right=66pt]{geometry}
+  - \usepackage[ddmmyyyy]{datetime}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhead{}
+  - \fancyhead[L]{Mosqueira - Albacore MSE}
+  - \fancyhead[R]{IOTC-2021-TCMP04-11}
+  - \setlength{\headheight}{14pt} 
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: no
+    toc: no
+  officedown::rdocx_document:
+fontfamily: libertine
+fontsize: 11pt
+tags: [ALB albacore Indian Ocean IOTC OM operating model SS3]
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+---
+
+```{r, knitr, echo=FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE,
+  fig.align="center", fig.width=5, fig.height=3, fig.pos='H')
+```
+
+# Summary of MSE work status
+
+- Work is being carried for the evaluation of candidate management procedures for the Indian Ocean albacore stock. An updated operating model for this stock, based on the results of the last stock assessment (WPTmT, 2019), is being finalized. Initial tests of candidate MPs are starting to be carried out. Management Procedure (MP) evaluation is being pursued in the strict sense in which the data to be input to the MP, the analysis, and the Harvest Control Rule (HCR) are all defined in advance and simulation-tested together.
+
+- The new operating model, although similar in approach to the previous iteration, considers a reduced number of factors introducing uncertainty in the stock dynamics. This decision is based on analyses of the previous grid.
+
+- The current operating model will be presented to the upcoming session of the IOTC Working Party on Methods for final revision and endorsement. The software platform employed to conduct the MSE simulations will also be presented to WPM. A final version, incorporating the WPM suggestions, will then be made available to the IOTC Scientific Committee.
+
+- The same two families of management procedures as applied to other stocks, based on trends in the CPUE and on a surplus production model, are being applied.
+ 
+- Scientific and technical support funding for this work runs until December 2021.
+
+
+# Development of an updated Operating Model
+
+The operating model (OM) for Indian Ocean albacore is based on a grid of model runs that introduce uncertainty in a series of assumptions, such as the stock-recruitment relationship or the level of natural mortality. The OM is now based on the latest stock assessment model developed by the Working Party on Temperate Tuna for this stock (WPTmT, 2019) and endorsed by the Scientific Committee. The uncertainty grid has also been simplified, building on the experience obtained from the previous version about which factors were most relevant at determining the stock dynamics. The methods employed in the OM conditioning have been reviewed by the last sessions of the Working Party on Methods (WPM, 2020) and the WPM MSE Taskforce (WPM-MSE, 2021).
+
+```{r, out.width="80%", fig.cap="Time series of main stock metrics (recruitment, SSB, catch and annual fishing mortality) as estimated by the model runs included in the current operating model grid, and compared to the results of the base case stock assessment run. The line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+include_graphics("../report/partial/stock_base.png")
+```
+
+The current OM grid will have as starting point a stock that is, with a high probability, being overfished and will need to be brought back to MSY levels.
+
+```{r, out.width="80%", fig.cap="Time series of fishing mortality and SSB over the corresponding reference points as estimated by the model runs included in the current operating model grid. The line shows the median value, while the darker and lighter ribbons show the 50\\% and 90\\% quantiles, respectively."}
+include_graphics("../report/partial/om_refpts.png")
+```
+
+# Albacore Management Procedures: guidance from TCMP03 (2019)
+
+- The TCMP03 requested the IOTC SC to review the new albacore stock assessment and decide on the need for the operating model to be reconditioned. At the suggestion of both WPTmT and WPM, the SC decided a new operating model should be conditioned based on the 2019 stock assessment.
+
+- The TCMP03 requested the SC to evaluate through simulations the likely impact in MP performance of a change in the data submission process for albacore. A current data lag of two years exists for this stock, compared to the one year lag for other IOTC stocks. Such an analysis is planned and the results will be presented to the IOTC SC.
+
+- The TCMP03 agreed on a shorter time period for the calculation of performance against tuning objectives. This was set to be the five year period of 2030-2034. This avoids stocks above the tuning levels being drive down to achieve those objectives over the whole simulation period.
+
+- The TCMP03 agreed to reduce the tuning criteria to 3 items, by excluding the tuning criteria of SSB>=SSB MSY with a probability of 50% (TA1). This left three criteria to be applied:
+
+  - TA2: P(Kobe green zone 2030:2034) = 50%. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 50% of the time (averaged over all simulations).
+  - TA3: P(Kobe green zone 2030:2034) = 60%. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 60% of the time (averaged over all simulations).
+  - TA4: P(Kobe green zone 2030:2034) = 0.7. The stock status is in the Kobe green quadrant over the period 2030-2034 exactly 70% of the time (averaged over all simulations).
+
+- The TCMP03 further recognized the desirability of other MP constraints:
+
+  - A 3-year TAC setting
+  - A 15% TAC change constraint
+  - A three-year implementation lag, two for data reporting and one for management. The possible effect of reducing this lag to two years was to be investigated.
+
+
+# Candidate Management Procedures
+
+The following two classes of management procedures are being applied to the Indian Ocean albacore stock.
+
+## M class (model-based) MPs
+
+```{r, out.width="80%", fig.cap="The model-based (M-class) MPs involve two steps: 1) fitting a simple surplus production model, and 2) applying a Harvest Control Rule (HCR) to the model estimates. The individual M-class MPs differ in terms of the Control Parameters (CP1-CP3) that define the shape of the HCR (and potentially the TAC change constraints)."}
+include_graphics("../report/figures/mclass.png")
+```
+
+## D class (data-based) MPs
+
+```{r, out.width="80%", fig.cap="The data-based (D-class) MPs attempt to manage the fishery to achieve a target value of standardized longline CPUE (annual, regionally-averaged). The next TAC is increased relative to the current TAC if current CPUE is above the target CPUE and the CPUE trend is increasing. Conversely, the next TAC is decreased relative to the current TAC if current CPUE is below the target CPUE and the CPUE trend is decreasing. If the CPUE location relative to the target and CPUE slope are in opposite directions, the TAC change could be in either direction, depending on the magnitude of these indicators, and the associated control parameters. Control parameters include: 1) the number of years in the CPUE slope calculation, 2) responsiveness to CPUE target deviation, 3) responsiveness to CPUE slope and 4) the CPUE target (the tuning parameter in this case). The TAC change constraint will also affect MP behaviour."}
+include_graphics("../report/figures/dclass.png")
+```
+
+# Requests for feedback from TCMP04
+
+The following items are brought to be attention of the TCMP04 for feedback to be provided to the scientists developing the evaluation of management procedures for Indian Ocean albacore tuna:
+
+- The TCMP03 decided on a reduced set of tuning objectives for this stock, all related to maintain the stock in the green area of the Kobe plot. This requires that both fishing mortality and biomass are kept above and below the MSY levels, respectively. Is this set still an acceptable choice for TCMP04?
+
+- Is there any other robustness run or alternative scenarios that the TCMP04 could find of interest?

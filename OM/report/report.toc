@@ -1,0 +1,19 @@
+\contentsline {section}{Introduction}{1}{Doc-Start}%
+\contentsline {section}{The WPTmT 2019 SS3 albacore stock assessment}{2}{Doc-Start}%
+\contentsline {subsection}{Model diagnostics}{5}{figure.caption.6}%
+\contentsline {subsubsection}{Retrospective analysis}{5}{figure.caption.6}%
+\contentsline {subsubsection}{Runs tests}{6}{figure.caption.7}%
+\contentsline {subsubsection}{Hindcasting cross validation}{6}{figure.caption.9}%
+\contentsline {subsection}{Parameter uncertainty}{7}{figure.caption.10}%
+\contentsline {section}{Operating Model grid}{9}{figure.caption.12}%
+\contentsline {subsection}{Limits to low natural mortality values}{9}{figure.caption.12}%
+\contentsline {subsection}{Main effects}{10}{figure.caption.12}%
+\contentsline {section}{Partial factorial operating model}{11}{figure.caption.14}%
+\contentsline {section}{Full grid operating model}{12}{figure.caption.15}%
+\contentsline {subsection}{Selection process}{12}{figure.caption.15}%
+\contentsline {subsection}{Time series}{13}{figure.caption.16}%
+\contentsline {subsection}{Importance of grid factors and levels}{14}{figure.caption.23}%
+\contentsline {subsection}{Short-term projections}{14}{figure.caption.27}%
+\contentsline {section}{Discussion}{22}{figure.caption.29}%
+\contentsline {section}{Acknowledgements}{22}{figure.caption.29}%
+\contentsline {section}{References}{22}{figure.caption.29}%
